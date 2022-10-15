@@ -11,14 +11,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgresp4ssword"
-	dbname   = "bookscenter"
-)
-
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		w.WriteHeader(404)
@@ -65,7 +57,11 @@ func main() {
 }
 
 func connectDB() (*sql.DB, error) {
+	user := os.Getenv("PSQUSER")
+	password := os.Getenv("PSQLPASSWORD")
+	dbname := os.Getenv("DBNAME")
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable", user, dbname, password)
+	fmt.Println(connStr)
 	db, err := sql.Open("postgres", connStr)
 	return db, err
 }
