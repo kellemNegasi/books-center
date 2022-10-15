@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 )
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -20,10 +21,16 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5060"
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
+	server := &http.Server{Addr: ":" + port, Handler: mux}
 	fmt.Println("started listening")
-	err := http.ListenAndServe(":5060", mux)
+	err := server.ListenAndServe()
 	if err != nil {
 		fmt.Printf("server failed %s", err.Error())
 	}
