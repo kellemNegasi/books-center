@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +24,10 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5060"
@@ -29,8 +36,8 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
 	server := &http.Server{Addr: ":" + port, Handler: mux}
-	fmt.Println("started listening")
-	err := server.ListenAndServe()
+	fmt.Printf("started listening on %s", port)
+	err = server.ListenAndServe()
 	if err != nil {
 		fmt.Printf("server failed %s", err.Error())
 	}
