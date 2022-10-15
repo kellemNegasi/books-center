@@ -1,12 +1,22 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+)
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "postgresp4ssword"
+	dbname   = "bookscenter"
 )
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +42,17 @@ func main() {
 	if port == "" {
 		port = "5060"
 	}
+	db, err := connectDB()
+	if err != nil {
+		log.Fatalf("failed to connect to DB %s \n", err)
+	}
+	defer db.Close()
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("failed to ping %s\n", err)
+	}
+
+	fmt.Println("Successfully connected!")
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
@@ -41,4 +62,10 @@ func main() {
 	if err != nil {
 		fmt.Printf("server failed %s", err.Error())
 	}
+}
+
+func connectDB() (*sql.DB, error) {
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable", user, dbname, password)
+	db, err := sql.Open("postgres", connStr)
+	return db, err
 }
