@@ -7,4 +7,5 @@ COPY .env ./
 RUN go mod download
 COPY *.go ./
 RUN go build -o /books-center
+EXPOSE 3030:3030
 CMD [ "/books-center" ]

@@ -6,9 +6,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+)
+
+const (
+	HOST = "postgres"
+	PORT = 5432
 )
 
 func handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -40,11 +46,15 @@ func main() {
 	}
 	defer db.Close()
 	err = db.Ping()
-	if err != nil {
-		log.Fatalf("failed to ping %s\n", err)
+	start := time.Now()
+	for db.Ping() != nil {
+		if start.After(start.Add(20 * time.Second)) {
+			fmt.Printf("Failed to connect after 10 seconds %s\n", err.Error())
+			break
+		}
 	}
 
-	fmt.Println("Successfully connected!")
+	fmt.Println("Successfully connected!", db.Ping() == nil)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
@@ -57,10 +67,10 @@ func main() {
 }
 
 func connectDB() (*sql.DB, error) {
-	user := os.Getenv("PSQUSER")
-	password := os.Getenv("PSQLPASSWORD")
-	dbname := os.Getenv("DBNAME")
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable", user, dbname, password)
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s  sslmode=disable", HOST, PORT, user, password, dbname)
 	fmt.Println(connStr)
 	db, err := sql.Open("postgres", connStr)
 	return db, err

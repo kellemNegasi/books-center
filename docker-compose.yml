@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  database:
+    image: postgres
+    container_name: postgres
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: bookscenter
+      POSTGRES_PASSWORD: "postgresp4ssword"
+    env_file:
+      - .env
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - database
+    networks:
+      - default
+    ports:
+      - "3030:3030"
+volumes:
+  data:    
+
+
+    
