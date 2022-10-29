@@ -4,11 +4,11 @@ services:
     image: postgres
     container_name: postgres
     restart: always
-    user: postgres
+    user: $POSTGRES_USER
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: bookscenter
-      POSTGRES_PASSWORD: "postgresp4ssword"
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     env_file:
       - .env
     expose:
